@@ -1,5 +1,6 @@
-# StartPage2
-Second attempt at a startpage
+# Namitab
+
+Nami is japanese for wave. This new tab page is inspired by Great Wave off Kanegawa and vaporwave/windows 95 aesthetics.
 
 Go to the live website with the link in the about section on the right hand sidebar.
 
