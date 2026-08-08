@@ -1,0 +1,30 @@
+{
+	"name": "namitab",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"workspaces": ["packages/*", "apps/*"],
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"dev": "npm run dev --workspaces --if-present",
+		"build": "npm run build --workspaces --if-present",
+		"check": "npm run check --workspaces --if-present",
+		"lint": "npm run lint --workspaces --if-present",
+		"test": "npm run test --workspaces --if-present",
+		"format": "prettier --write ."
+	},
+	"devDependencies": {
+		"@eslint/compat": "^1.2.5",
+		"@eslint/js": "^9.18.0",
+		"eslint": "^9.18.0",
+		"eslint-config-prettier": "^10.0.1",
+		"globals": "^16.0.0",
+		"prettier": "^3.4.2",
+		"prettier-plugin-svelte": "^3.3.3",
+		"typescript": "^5.0.0",
+		"typescript-eslint": "^8.20.0",
+		"vitest": "^3.2.3"
+	}
+}
