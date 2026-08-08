@@ -1,0 +1,16 @@
+{
+	"name": "@namitab/core",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"lint": "prettier --check . && eslint ."
+	},
+	"dependencies": {
+		"zod": "^3.25.76"
+	}
+}
