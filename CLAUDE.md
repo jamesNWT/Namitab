@@ -1,4 +1,43 @@
-# Namitab
+# Namitab code-brain to be maintained by programmer:
+
+## What we're building and why
+Namitab is new-tab/startpage project available for self-hosting or as a browser extension. It aims to provide users with a beautiful, distractionless, functional page to start browsing sessions with that contains only the shortcuts they desire. It is available for self-hosting for the fastest possible performance and total ownership of your data. It is available as a chrome extension for ease of use.
+
+## Structure / Architecture
+The namitab project is a monorepo managing a svelte webpage, a browser extension module, and a shared core of functionality. I should describe the architecture of the config schema and storage here once I fully understand it.
+
+## What we have done so far and why:
+
+### Legacy startpage
+Years ago I built this startpage in vanilla js, using firebase for persistance. It was a bit rough around the edges but it basically worked perfectly for years of daily use by me. it is still visible on the legacy branch on git.
+
+### Rewrite step 1: Re-architecting and restructuring the codebase.
+I've always wanted to make this startpage easily available to my friends. To this end it had to be more configurable, customizable, robust, and easily available. To achieve this I wanted to make it available as a browser extension. For those more technically inclined I also wanted to make it work as a self-hosted page. Finally I wanted to use Svelte in a project and this seemed like a reasonable fit. Thus the decision to rewrite the project was taken. We also did not want to pay to host a backend for this project should we actually gain more users than a trial liscence of a hosting platform would allow. To this end we decided to use `browser.storage.sync` (via `webextension-polyfill` for cross-browser support) for the extension and the self-hosted app uses `localStorage`. This allows users to save and persist a limited amount of configuration data with no need for any account on their part or hosted backend on our part. The first step of the rewrite would be to structure a monorepo in a way to manage a svelte page, a browser extension, and the shared functionality between them. This resulted in a structure like: 
+
+**Monorepo shape** (npm workspaces):
+```
+packages/core/     shared, framework-agnostic-where-possible logic
+  storage/           StorageAdapter interface + web/extension implementations
+  commands/           command registry + built-in commands
+  config/              zod schema, defaults, migrations
+apps/web/           SvelteKit, adapter-static — self-host target
+apps/extension/      browser extension, Chrome/Firefox/Edge — evaluate WXT (wxt.dev) for cross-browser MV3 builds with Svelte support
+```
+
+Of special note with the restructure is the use of 'npm workspaces', which is a way to harmonize working with three different packages (core, web, extension), in a monorepo. It should be fairly frictionless, but you may need to remember that we are working with npm workspaces instead of one npm package, at times.
+
+## Current goal:
+
+The reorganization was a large change using new tools and patterns I've got no experience in as a developer. I need to understand the current state of implementation from first principles before moving forward on more changes. 
+- understand overall monorepo design decisions from first principles
+- Understand zod config implementation from first principles
+- Do I have any lingering questions?
+I must check these three boxes to move on
+
+---
+
+# Claude-generated claude.md 
+(may be partially or completely out of date)
 
 A personal start-page / new-tab project (vaporwave + Windows 95-inspired aesthetic, "nami" = Japanese for wave) that is being rewritten from the ground up into an open-source, dual-distribution product: a self-hostable web app and a cross-browser extension. See **Planned Rewrite** below for the target architecture — none of it is implemented yet.
 
