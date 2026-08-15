@@ -7,6 +7,7 @@ Namitab is being rewritten from a legacy static-JS/Firebase site into an open-so
 CLAUDE.md's stated build order is: **core package (schema, storage adapter, command registry) → self-hosted web app → self-host docs → extension → optional hosted sync layer**. This plan covers only the first step — standing up the npm-workspaces monorepo skeleton and building out `packages/core` — because everything downstream (the web app's UI, the extension) depends on this shared logic existing first, and it's independently testable without any UI. It stops short of wiring `apps/web`'s UI to `packages/core`; that's the next slice.
 
 Research grounding this plan (already done, not re-derived here):
+
 - The SvelteKit scaffold (`namitab-frontend/`) is 100% stock output — safe to move wholesale.
 - The legacy app's exact command-parsing, shortcut-storage, and theming behavior was read from `scripts/*.js` and `style/main.css` (via git) — this plan's defaults and bug fixes are traced to specific legacy behavior, not guessed.
 - The abandoned `origin/darkmode` branch (plus a corrective follow-up commit `226bae9` on `legacy` that fixed a readability bug in it) provides confirmed, reusable dark-theme CSS variable values.
@@ -33,6 +34,7 @@ Out of scope (later slices): `apps/web` UI/theming, `apps/extension`, `browser.s
 Create root `package.json` (npm workspaces: `["packages/*", "apps/*"]`, `engines.node: ">=20"`, scripts that fan out via `--workspaces --if-present`, and root `.npmrc` with `engine-strict=true`). Hoist shared, generic devDependencies to root (`eslint`, `prettier` + `prettier-plugin-svelte`, `typescript`, `typescript-eslint`, `vitest`, `eslint-config-prettier`, `globals`, `@eslint/js`, `@eslint/compat`); keep Svelte/Kit-specific deps (`@sveltejs/kit`, `svelte`, `vite`, `svelte-check`, `@sveltejs/vite-plugin-svelte`, `jsdom`, `@testing-library/*`) in `apps/web/package.json`. Add a root `.gitignore` (repo currently has none) covering `node_modules`, `.svelte-kit`, `build`, `dist`.
 
 Consolidate tooling config to root, no per-package duplication:
+
 - **Prettier**: move `.prettierrc`/`.prettierignore` from `apps/web` to root.
 - **ESLint**: move `eslint.config.js` to root (flat config), with the existing Svelte-file-scoped block (already self-scoped via `files: ['**/*.svelte', ...]`) importing `apps/web/svelte.config.js` by relative path for parser options.
 - **TypeScript**: add root `tsconfig.base.json` with shared strict options; `packages/core/tsconfig.json` extends it. Leave `apps/web/tsconfig.json` as-is (extends SvelteKit's generated `.svelte-kit/tsconfig.json` — don't fight the framework there).
@@ -67,12 +69,13 @@ packages/core/src/
 ## 5. `packages/core/storage`
 
 **Interface** (`types.ts`) — exactly per CLAUDE.md, verbatim:
+
 ```ts
 interface StorageAdapter {
-  getAll(): Promise<Record<string, unknown>>;
-  set(entries: Record<string, unknown>): Promise<void>;
-  remove(keys: string[]): Promise<void>;
-  onChange(cb: (changed: Record<string, unknown>, removed: string[]) => void): () => void;
+	getAll(): Promise<Record<string, unknown>>;
+	set(entries: Record<string, unknown>): Promise<void>;
+	remove(keys: string[]): Promise<void>;
+	onChange(cb: (changed: Record<string, unknown>, removed: string[]) => void): () => void;
 }
 ```
 
@@ -89,6 +92,7 @@ Not built in this slice (interface must not foreclose it): the extension's `brow
 ## 7. Testing
 
 Co-located `*.test.ts` files (matches existing scaffold convention), run via `packages/core`'s own `vitest.config.ts` (jsdom environment). Representative cases:
+
 - **schema**: valid config accepted; duplicate shortcut names rejected; duplicate engine ids rejected; `defaultSearchEngineId` referencing a missing engine rejected; invalid `background.url` rejected.
 - **migrate**: `migrateConfig(defaultConfig)` → `ok:true`; `migrateConfig({})`/`null`/`undefined` → `ok:false` without throwing.
 - **localStorageAdapter**: set/getAll round-trip; remove omits the key; keys are namespaced (`namitab:` prefix on the raw storage key); `onChange` fires synchronously on same-tab `set`/`remove` (the synthesized-notification fix); unsubscribe stops further callbacks; `getAll()` ignores pre-existing non-namespaced localStorage entries.

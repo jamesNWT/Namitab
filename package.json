@@ -3,7 +3,10 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
-	"workspaces": ["packages/*", "apps/*"],
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
 	"engines": {
 		"node": ">=20"
 	},
