@@ -20,52 +20,50 @@ export function buildSearchEngineCommands(searchEngines: Config['searchEngines']
 		}));
 }
 
-export const addShortcutCommand: Command = {
-	prefix: '-a',
-	description: 'Add a shortcut: -a name url category',
-	handler: (args, ctx) => {
-		const [name, url, category] = args.trim().split(/\s+/).filter(Boolean);
-		if (!name || !url || !category) {
-			return { ok: false, error: 'usage: -a name url category' };
+export const staticCommands = {
+	// "static" refers to the fact these commands are set at
+	// compile-time, and not generated during run time, as is the case
+	// with buildSearchEngineCommands()
+	addShortcut: {
+		prefix: '-a',
+		description: 'Add a shortcut: -a name url category',
+		handler: (args, ctx) => {
+			const [name, url, category] = args.trim().split(/\s+/).filter(Boolean);
+			if (!name || !url || !category) {
+				return { ok: false, error: 'usage: -a name url category' };
+			}
+			const result = ctx.store.addShortcut(name, url, category);
+			return result.ok ? { ok: true, value: undefined } : result;
 		}
-		const result = ctx.store.addShortcut(name, url, category);
-		return result.ok ? { ok: true, value: undefined } : result;
-	}
-};
-
-export const removeShortcutCommand: Command = {
-	prefix: '-r',
-	description: 'Remove a shortcut: -r name',
-	handler: (args, ctx) => {
-		const name = args.trim();
-		if (!name) {
-			return { ok: false, error: 'usage: -r name' };
+	},
+	removeShortcut: {
+		prefix: '-r',
+		description: 'Remove a shortcut: -r name',
+		handler: (args, ctx) => {
+			const name = args.trim();
+			if (!name) {
+				return { ok: false, error: 'usage: -r name' };
+			}
+			return ctx.store.removeShortcut(name);
 		}
-		return ctx.store.removeShortcut(name);
-	}
-};
-
-export const gotoShortcutCommand: Command = {
-	prefix: '-s',
-	description: 'Go to a shortcut: -s name',
-	handler: (args, ctx) => {
-		const name = args.trim();
-		const shortcut = ctx.store.findShortcutByName(name);
-		if (!shortcut) {
-			return { ok: false, error: `shortcut not found: ${name}` };
+	},
+	gotoShortcut: {
+		prefix: '-s',
+		description: 'Go to a shortcut: -s name',
+		handler: (args, ctx) => {
+			const name = args.trim();
+			const shortcut = ctx.store.findShortcutByName(name);
+			if (!shortcut) {
+				return { ok: false, error: `shortcut not found: ${name}` };
+			}
+			ctx.navigate(shortcut.url);
+			return { ok: true, value: undefined };
 		}
-		ctx.navigate(shortcut.url);
-		return { ok: true, value: undefined };
 	}
-};
+} satisfies Record<string, Command>;
 
 export function buildCommands(config: Config): Command[] {
-	return [
-		...buildSearchEngineCommands(config.searchEngines),
-		addShortcutCommand,
-		removeShortcutCommand,
-		gotoShortcutCommand
-	];
+	return [...buildSearchEngineCommands(config.searchEngines), ...Object.values(staticCommands)];
 }
 
 export function dispatchCommand(
