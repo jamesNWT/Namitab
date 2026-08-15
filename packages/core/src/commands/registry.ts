@@ -21,9 +21,8 @@ export function buildSearchEngineCommands(searchEngines: Config['searchEngines']
 }
 
 export const staticCommands = {
-	// "static" refers to the fact these commands are set at
-	// compile-time, and not generated during run time, as is the case
-	// with buildSearchEngineCommands()
+	// "static" refers to the fact these commands are set at compile-time, and not generated during
+	//  run time, as is the case with buildSearchEngineCommands()
 	addShortcut: {
 		prefix: '-a',
 		description: 'Add a shortcut: -a name url category',
@@ -63,6 +62,8 @@ export const staticCommands = {
 } satisfies Record<string, Command>;
 
 export function buildCommands(config: Config): Command[] {
+	// This is called on every dispatchCommand, so do be careful if you find yourself changing this
+	// into something that would introduce real latency.
 	return [...buildSearchEngineCommands(config.searchEngines), ...Object.values(staticCommands)];
 }
 
