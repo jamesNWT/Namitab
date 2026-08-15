@@ -1,8 +1,7 @@
 import { configSchemaV1, type Config } from './schema';
+import type { Result } from '../result';
 
-export type StoreResult<T> = { ok: true; value: T } | { ok: false; error: string };
-
-export function migrateConfig(raw: unknown): StoreResult<Config> {
+export function migrateConfig(raw: unknown): Result<Config> {
 	// Only one schema version exists today; a v1 -> v2 transform would run
 	// here, keyed off `raw.version`, before validating against the latest
 	// schema.

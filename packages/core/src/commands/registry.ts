@@ -1,10 +1,10 @@
 import type { Config, SearchEngine } from '../config/schema';
-import type { StoreResult } from '../config/migrate';
+import type { Result } from '../result';
 import type { Command, CommandContext } from './types';
 import { parseCommandInput } from './parse';
 
 function searchCommandHandler(engine: SearchEngine) {
-	return (args: string, ctx: CommandContext): StoreResult<void> => {
+	return (args: string, ctx: CommandContext): Result<void> => {
 		ctx.navigate(engine.urlTemplate + encodeURIComponent(args));
 		return { ok: true, value: undefined };
 	};
@@ -66,11 +66,7 @@ export function buildCommands(config: Config): Command[] {
 	return [...buildSearchEngineCommands(config.searchEngines), ...Object.values(staticCommands)];
 }
 
-export function dispatchCommand(
-	input: string,
-	config: Config,
-	ctx: CommandContext
-): StoreResult<void> {
+export function dispatchCommand(input: string, config: Config, ctx: CommandContext): Result<void> {
 	const { prefix, args } = parseCommandInput(input);
 
 	if (prefix === null) {

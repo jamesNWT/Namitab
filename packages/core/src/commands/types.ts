@@ -1,4 +1,4 @@
-import type { StoreResult } from '../config/migrate';
+import type { Result } from '../result';
 import type { Shortcut } from '../config/schema';
 
 /**
@@ -8,8 +8,8 @@ import type { Shortcut } from '../config/schema';
  * shape.
  */
 export interface ConfigStoreLike {
-	addShortcut(name: string, url: string, category: string): StoreResult<Shortcut>;
-	removeShortcut(name: string): StoreResult<void>;
+	addShortcut(name: string, url: string, category: string): Result<Shortcut>;
+	removeShortcut(name: string): Result<void>;
 	findShortcutByName(name: string): Shortcut | undefined;
 }
 
@@ -21,5 +21,5 @@ export interface CommandContext {
 export interface Command {
 	prefix?: string;
 	description: string;
-	handler: (args: string, ctx: CommandContext) => StoreResult<void>;
+	handler: (args: string, ctx: CommandContext) => Result<void>;
 }
