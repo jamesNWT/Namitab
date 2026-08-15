@@ -26,7 +26,9 @@ export class LocalStorageAdapter implements StorageAdapter {
 			if (rawKey === null || !rawKey.startsWith(NAMESPACE)) continue;
 			const rawValue = this.storage.getItem(rawKey);
 			if (rawValue === null) continue;
-			result[rawKey.slice(NAMESPACE.length)] = JSON.parse(rawValue);
+			const parsed = this.parseValue(rawValue);
+			if (!parsed.parsed) continue;
+			result[rawKey.slice(NAMESPACE.length)] = parsed.value;
 		}
 		return result;
 	}
@@ -57,14 +59,27 @@ export class LocalStorageAdapter implements StorageAdapter {
 		const key = event.key.slice(NAMESPACE.length);
 		if (event.newValue === null) {
 			this.emit({}, [key]);
-		} else {
-			this.emit({ [key]: JSON.parse(event.newValue) }, []);
+			return;
 		}
+		const parsed = this.parseValue(event.newValue);
+		if (!parsed.parsed) return;
+		this.emit({ [key]: parsed.value }, []);
 	};
 
 	private emit(changed: Record<string, unknown>, removed: string[]): void {
 		for (const listener of this.listeners) {
 			listener(changed, removed);
+		}
+	}
+
+	// A hand-edited or corrupted entry shouldn't take down the rest of a
+	// getAll()/onChange notification — treat it the same as a key that
+	// doesn't exist, rather than letting JSON.parse throw out of here.
+	private parseValue(raw: string): { parsed: true; value: unknown } | { parsed: false } {
+		try {
+			return { parsed: true, value: JSON.parse(raw) };
+		} catch {
+			return { parsed: false };
 		}
 	}
 }

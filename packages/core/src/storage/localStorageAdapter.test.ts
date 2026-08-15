@@ -90,4 +90,31 @@ describe('LocalStorageAdapter', () => {
 		await adapter.set({ a: 1 });
 		expect(await adapter.getAll()).toEqual({ a: 1 });
 	});
+
+	it('skips a malformed entry in getAll rather than throwing', async () => {
+		storage.setItem('namitab:shortcut:1', 'not valid json{{{');
+		storage.setItem('namitab:shortcut:2', JSON.stringify({ name: 'ok' }));
+		await expect(adapter.getAll()).resolves.toEqual({ 'shortcut:2': { name: 'ok' } });
+	});
+
+	it('ignores a malformed cross-tab storage event rather than throwing', () => {
+		// jsdom's StorageEvent requires a real Storage instance for
+		// storageArea, so this uses the genuine window.localStorage rather
+		// than the FakeStorage used elsewhere in this file.
+		const realAdapter = new LocalStorageAdapter(globalThis.localStorage);
+		let called = false;
+		realAdapter.onChange(() => {
+			called = true;
+		});
+		expect(() => {
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key: 'namitab:shortcut:1',
+					newValue: 'not valid json{{{',
+					storageArea: globalThis.localStorage
+				})
+			);
+		}).not.toThrow();
+		expect(called).toBe(false);
+	});
 });
