@@ -1,6 +1,6 @@
 # Namitab PROGRAMMER.md
 
-sort of like a CLAUDE.md, but written exclusively by a programmer.
+A journal of development in this repo, and long-term memory accessible to agents, but LLMs do not modify this file.
 
 ## What we're building and why
 
@@ -9,6 +9,29 @@ Namitab is new-tab/startpage project available for self-hosting or as a browser 
 ## Structure / Architecture
 
 The namitab project is a monorepo managing a svelte webpage, a browser extension module, and a shared core of functionality. I should describe the architecture of the config schema and storage here once I fully understand it.
+
+**Monorepo shape** (npm workspaces):
+
+```
+packages/core/     shared, framework-agnostic-where-possible logic
+  storage/           StorageAdapter interface + web/extension implementations
+  commands/           command registry + built-in commands
+  config/              zod schema, defaults, migrations
+apps/web/           SvelteKit, adapter-static — self-host target
+apps/extension/      browser extension, Chrome/Firefox/Edge — evaluate WXT (wxt.dev) for cross-browser MV3 builds with Svelte support
+```
+
+### How to do development and stuff
+
+**Commands**
+
+npm workspaces (`packages/*`, `apps/*`) — run from the repo root, not inside a package.
+
+- `npm install` — single hoisted install for all workspaces
+- `npm run dev -w @namitab/web` — SvelteKit dev server
+- `npm test` / `npm run lint` / `npm run check` — fan out to every workspace's own script (`--workspaces --if-present`). `check` is `tsc --noEmit` for `packages/core`, svelte-check for `apps/web`
+- `npm run format` — `prettier --write .` across the whole repo
+- Target one workspace directly: `npm run <script> -w @namitab/core` or `-w @namitab/web`
 
 ## What we have done so far and why:
 
