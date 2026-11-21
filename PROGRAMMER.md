@@ -85,3 +85,5 @@ We also implemented a Result<T> type at the top level of the nanitab/core module
 ## Current goal:
 
 Begin work on the svelte app. Also, understand to what extent the extension will be dependent on the svelte app. 
+
+`ConfigStore` (wraps a `StorageAdapter`, holds reactive state, satisfies `ConfigStoreLike`) doesn't exist yet, and deliberately so: its home — plain TS inside `packages/core` vs. Svelte-native (runes) inside `apps/web` — depends on what a real Svelte component actually needs, which isn't known without one. Current plan: build it alongside the first real `apps/web` UI work rather than as its own preceding slice. It also needs to reassemble `StorageAdapter.getAll()`'s flat, per-key map (e.g. `shortcut:<id>`) into the nested shape `migrateConfig` expects, and do the reverse on writes — this doesn't exist anywhere yet either.
