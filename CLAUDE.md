@@ -4,8 +4,8 @@ Maintained by Claude and the Programmer — kept up to date as the repo changes.
 
 ## Agents' role
 
-- The programmer must understand the code completely. 
-- LLMs can implement, but only when specifically asked to. 
+- The programmer must understand the code completely.
+- LLMs can implement, but only when specifically asked to.
 - The first and most important use for agents in this repo is to accelerate the programmer's own ability to understand and implement the code, and help the programmer discover the way forward when stuck.
 
 ## Conventions

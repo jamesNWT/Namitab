@@ -10,18 +10,18 @@
 	"engines": {
 		"node": ">=20"
 	},
-        "devEngines": {
-            "runtime": {
-              "name": "node",
-              "version": "26",
-              "onFail": "error"
-            },
-            "packageManager": { 
-                "name": "npm", 
-                "version": "11.20.0",
-                "onFail": "error"
-            }
-        },
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": "26",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "npm",
+			"version": "11.20.0",
+			"onFail": "error"
+		}
+	},
 	"scripts": {
 		"dev": "npm run dev --workspaces --if-present",
 		"build": "npm run build --workspaces --if-present",
