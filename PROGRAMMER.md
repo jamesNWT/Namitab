@@ -82,6 +82,10 @@ As part of the first step of the rewrite, we've gone ahead and implemented three
 
 We also implemented a Result<T> type at the top level of the nanitab/core module to enable controlled error handling.
 
+### Aside: setting up a good cross-platform development environment control system
+
+I stumbled into unexpected test case fails on windows that didn't happen on linux, which I'm pretty sure came from mismatched node envionments, so I spent a surprising amount of time thinking about and expirementing with methods to control the development environment across platforms. I settled on using package.json's devEngines object to enforce a version and, at least on linux, mise to manage my node install. I will probably use mise as well on windows, but the reason I chose to use package.json and devEngines is so that the method by which a developer gets the right development engines is not set in stone. For a project that is just a node-based front end, this is probably enough.
+
 ## Current goal:
 
 Begin work on the svelte app. Also, understand to what extent the extension will be dependent on the svelte app. 
