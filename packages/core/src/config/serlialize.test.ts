@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { fromStorageEntries, toStorageEntries } from './serialize';
+import { fromStorageEntries, toStorageEntries, diffStorageEntries } from './serialize';
 import type { Config } from './schema';
 import { defaultConfig } from './defaults';
 
 const config: Config = {
 	...defaultConfig,
 	shortcuts: [{ id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 }]
+};
+
+const exampleEntriesA = {
+	meta: { version: 1, defaultSearchEngineId: 'google' },
+	searchEngines: defaultConfig.searchEngines,
+	theme: defaultConfig.theme,
+	background: defaultConfig.background,
+	'shortcut:abc': { id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 }
 };
 
 describe('toStorageEntries', () => {
@@ -42,5 +50,12 @@ describe('fromStorageEntries', () => {
 
 	it('returns an empty shortcut list for empty storage', () => {
 		expect(fromStorageEntries({})).toMatchObject({ shortcuts: [] });
+	});
+});
+
+describe('diffStorageEntries', () => {
+	it('returns empty set and remove when nothing changes', () => {
+		const res = diffStorageEntries(exampleEntriesA, exampleEntriesA);
+		expect(res).toEqual({ set: {}, remove: [] });
 	});
 });

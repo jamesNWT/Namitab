@@ -47,6 +47,13 @@ export function fromStorageEntries(entries: Record<string, unknown>): unknown {
 	};
 }
 
+export function diffStorageEntries(
+	next: Record<string, unknown>,
+	prev: Record<string, unknown>
+): { set: Record<string, unknown>; remove: string[] } {
+	return { set: {}, remove: [] };
+}
+
 // For imposing an order on the shortcuts, since no key order is guaranteed out of storage.
 function compareShortcuts(a: unknown, b: unknown): number {
 	const byOrder = numberField(a, 'order') - numberField(b, 'order');
@@ -55,7 +62,6 @@ function compareShortcuts(a: unknown, b: unknown): number {
 	const idB = stringField(b, 'id');
 	return idA < idB ? -1 : idA > idB ? 1 : 0;
 }
-
 
 // The below functions are for handling unknown without throwing.
 
