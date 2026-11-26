@@ -2,9 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { fromStorageEntries, toStorageEntries, diffStorageEntries } from './serialize';
 import type { Config } from './schema';
 import { defaultConfig } from './defaults';
-import { record } from 'zod/v4';
 
-const exampleShortcutABC =  { id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 };
+const exampleShortcutABC = {
+	id: 'abc',
+	name: 'gh',
+	url: 'https://github.com',
+	category: 'dev',
+	order: 0
+};
 
 const config: Config = {
 	...defaultConfig,
@@ -15,7 +20,7 @@ const exampleEntries = {
 	meta: { version: 1, defaultSearchEngineId: 'google' },
 	searchEngines: defaultConfig.searchEngines,
 	theme: defaultConfig.theme,
-	background: defaultConfig.background,
+	background: defaultConfig.background
 };
 describe('toStorageEntries', () => {
 	it('returns an indexable record from the default config', () => {
@@ -55,25 +60,53 @@ describe('fromStorageEntries', () => {
 });
 
 describe('diffStorageEntries', () => {
-	const exampleWithShortCut = { 
-			...exampleEntries, 
-			'shortcut:abc': exampleShortcutABC
-		}
-	
+	const exampleWithShortcut = {
+		...exampleEntries,
+		'shortcut:abc': exampleShortcutABC
+	};
+
 	it('returns empty set and remove when nothing changes', () => {
 		const res = diffStorageEntries(exampleEntries, exampleEntries);
 		expect(res).toEqual({ set: {}, remove: [] });
 	});
-	
+
 	it('returns an entry in set for a shortcut that is in next but not prev', () => {
-		const res = diffStorageEntries(exampleWithShortCut, exampleEntries);
-		expect(res.set).toEqual({'shortcut:abc': exampleShortcutABC});
+		const res = diffStorageEntries(exampleEntries, exampleWithShortcut);
+		expect(res.set).toEqual({ 'shortcut:abc': exampleShortcutABC });
 		expect(res.remove).toEqual([]);
 	});
 
 	it('returns the key in remove for a shortcut that is in prev but not in next', () => {
-		const res = diffStorageEntries(exampleEntries, exampleWithShortCut);
+		const res = diffStorageEntries(exampleWithShortcut, exampleEntries);
 		expect(res.set).toEqual({});
-		expect(res.remove).toEqual(['shortcut:abc'])
-	})
+		expect(res.remove).toEqual(['shortcut:abc']);
+	});
+
+	it('returns only the changed key in set when a value changes', () => {
+		const renamed = { ...exampleShortcutABC, name: 'github' };
+		const res = diffStorageEntries(exampleWithShortcut, {
+			...exampleWithShortcut,
+			'shortcut:abc': renamed
+		});
+		expect(res.set).toEqual({ 'shortcut:abc': renamed });
+		expect(res.remove).toEqual([]);
+	});
+
+	it('treats an equal-valued copy as unchanged', () => {
+		const res = diffStorageEntries(exampleWithShortcut, {
+			...exampleWithShortcut,
+			'shortcut:abc': { ...exampleShortcutABC }
+		});
+		expect(res).toEqual({ set: {}, remove: [] });
+	});
+
+	it('handles an add and a remove together', () => {
+		const exampleShortcutDEF = { ...exampleShortcutABC, id: 'def', name: 'docs', order: 1 };
+		const res = diffStorageEntries(exampleWithShortcut, {
+			...exampleEntries,
+			'shortcut:def': exampleShortcutDEF
+		});
+		expect(res.set).toEqual({ 'shortcut:def': exampleShortcutDEF });
+		expect(res.remove).toEqual(['shortcut:abc']);
+	});
 });

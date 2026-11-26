@@ -5,11 +5,10 @@ Config blob all at once.
 Furthermore, when using browser.storage.sync, syncing the whole blob at once means that concurrent
 edits on two devices would only keep the last one. 
 
-To handle this, we serialaize the Config object into a Record with one key per section and one key
+To handle this, we serialize the Config object into a Record with one key per section and one key
 per shortcut and store the key value pairs individually.
 */
 
-import { keyof } from 'zod/v4';
 import type { Config } from './schema';
 
 const SHORTCUT_PREFIX = 'shortcut:';
@@ -49,29 +48,25 @@ export function fromStorageEntries(entries: Record<string, unknown>): unknown {
 }
 
 export function diffStorageEntries(
-	next: Record<string, unknown>,
-	prev: Record<string, unknown>
+	prev: Record<string, unknown>,
+	next: Record<string, unknown>
 ): { set: Record<string, unknown>; remove: string[] } {
-
 	const set: Record<string, unknown> = {};
 	const remove: string[] = [];
-	
-	Object.keys(next).forEach(k => {
-		if (k in prev) {
-			if (JSON.stringify(prev[k]) !== JSON.stringify(next[k])) {
-				set[k] = next[k];
-			}
-		} else {
+
+	Object.keys(next).forEach((k) => {
+		if (!Object.hasOwn(prev, k) || JSON.stringify(prev[k]) !== JSON.stringify(next[k])) {
 			set[k] = next[k];
 		}
 	});
 
-	Object.keys(prev).forEach(k => {
-		if (!(k in next)) {
+	Object.keys(prev).forEach((k) => {
+		if (!Object.hasOwn(next, k)) {
 			remove.push(k);
 		}
-	})
-	return { set: set, remove: remove };
+	});
+
+	return { set, remove };
 }
 
 // For imposing an order on the shortcuts, since no key order is guaranteed out of storage.
