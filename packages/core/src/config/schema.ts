@@ -14,7 +14,11 @@ export const shortcutSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	url: z.string(),
-	category: z.string()
+	category: z.string(),
+	// Display position: lower sorts first. Not required to be unique — two
+	// synced devices can add a shortcut at the same moment and pick the same
+	// number — so readers break ties by id.
+	order: z.number()
 });
 export type Shortcut = z.infer<typeof shortcutSchema>;
 

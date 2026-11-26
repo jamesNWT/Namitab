@@ -48,7 +48,7 @@ describe('dispatchCommand', () => {
 	});
 
 	it('navigates to a known shortcut for -s', () => {
-		const shortcut: Shortcut = { id: '1', name: 'foo', url: 'https://foo.example', category: 'x' };
+		const shortcut: Shortcut = { id: '1', name: 'foo', url: 'https://foo.example', category: 'x', order: 0 };
 		const { ctx, navigate } = createContext({ findShortcutByName: vi.fn(() => shortcut) });
 		const result = dispatchCommand('-s foo', defaultConfig, ctx);
 		expect(result.ok).toBe(true);

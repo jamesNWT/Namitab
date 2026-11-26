@@ -12,8 +12,8 @@ describe('configSchemaV1', () => {
 		const result = configSchemaV1.safeParse({
 			...defaultConfig,
 			shortcuts: [
-				{ id: '1', name: 'dup', url: 'https://a.example', category: 'x' },
-				{ id: '2', name: 'dup', url: 'https://b.example', category: 'x' }
+				{ id: '1', name: 'dup', url: 'https://a.example', category: 'x', order: 0 },
+				{ id: '2', name: 'dup', url: 'https://b.example', category: 'x', order: 1 }
 			]
 		});
 		expect(result.success).toBe(false);

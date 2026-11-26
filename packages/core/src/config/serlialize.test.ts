@@ -5,7 +5,7 @@ import { defaultConfig } from './defaults';
 
 const config: Config = {
 	...defaultConfig,
-	shortcuts: [{ id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev' }]
+	shortcuts: [{ id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 }]
 };
 
 describe('toStorageEntries', () => {
