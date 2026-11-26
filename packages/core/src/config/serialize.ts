@@ -9,6 +9,7 @@ To handle this, we serialaize the Config object into a Record with one key per s
 per shortcut and store the key value pairs individually.
 */
 
+import { keyof } from 'zod/v4';
 import type { Config } from './schema';
 
 const SHORTCUT_PREFIX = 'shortcut:';
@@ -51,7 +52,26 @@ export function diffStorageEntries(
 	next: Record<string, unknown>,
 	prev: Record<string, unknown>
 ): { set: Record<string, unknown>; remove: string[] } {
-	return { set: {}, remove: [] };
+
+	const set: Record<string, unknown> = {};
+	const remove: string[] = [];
+	
+	Object.keys(next).forEach(k => {
+		if (k in prev) {
+			if (JSON.stringify(prev[k]) !== JSON.stringify(next[k])) {
+				set[k] = next[k];
+			}
+		} else {
+			set[k] = next[k];
+		}
+	});
+
+	Object.keys(prev).forEach(k => {
+		if (!(k in next)) {
+			remove.push(k);
+		}
+	})
+	return { set: set, remove: remove };
 }
 
 // For imposing an order on the shortcuts, since no key order is guaranteed out of storage.

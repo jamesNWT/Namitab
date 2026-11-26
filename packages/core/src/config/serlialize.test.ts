@@ -2,20 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { fromStorageEntries, toStorageEntries, diffStorageEntries } from './serialize';
 import type { Config } from './schema';
 import { defaultConfig } from './defaults';
+import { record } from 'zod/v4';
+
+const exampleShortcutABC =  { id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 };
 
 const config: Config = {
 	...defaultConfig,
-	shortcuts: [{ id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 }]
+	shortcuts: [exampleShortcutABC]
 };
 
-const exampleEntriesA = {
+const exampleEntries = {
 	meta: { version: 1, defaultSearchEngineId: 'google' },
 	searchEngines: defaultConfig.searchEngines,
 	theme: defaultConfig.theme,
 	background: defaultConfig.background,
-	'shortcut:abc': { id: 'abc', name: 'gh', url: 'https://github.com', category: 'dev', order: 0 }
 };
-
 describe('toStorageEntries', () => {
 	it('returns an indexable record from the default config', () => {
 		const result = toStorageEntries(config);
@@ -54,8 +55,25 @@ describe('fromStorageEntries', () => {
 });
 
 describe('diffStorageEntries', () => {
+	const exampleWithShortCut = { 
+			...exampleEntries, 
+			'shortcut:abc': exampleShortcutABC
+		}
+	
 	it('returns empty set and remove when nothing changes', () => {
-		const res = diffStorageEntries(exampleEntriesA, exampleEntriesA);
+		const res = diffStorageEntries(exampleEntries, exampleEntries);
 		expect(res).toEqual({ set: {}, remove: [] });
 	});
+	
+	it('returns an entry in set for a shortcut that is in next but not prev', () => {
+		const res = diffStorageEntries(exampleWithShortCut, exampleEntries);
+		expect(res.set).toEqual({'shortcut:abc': exampleShortcutABC});
+		expect(res.remove).toEqual([]);
+	});
+
+	it('returns the key in remove for a shortcut that is in prev but not in next', () => {
+		const res = diffStorageEntries(exampleEntries, exampleWithShortCut);
+		expect(res.set).toEqual({});
+		expect(res.remove).toEqual(['shortcut:abc'])
+	})
 });
