@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toStorageEntries } from './serialize';
+import { fromStorageEntries, toStorageEntries } from './serialize';
 import type { Config } from './schema';
 import { defaultConfig } from './defaults';
 
@@ -16,5 +16,31 @@ describe('toStorageEntries', () => {
 		expect(result.theme).toEqual(defaultConfig.theme);
 		expect(result.background).toEqual(defaultConfig.background);
 		expect(result['shortcut:abc']).toEqual(config.shortcuts[0]);
+	});
+});
+
+describe('fromStorageEntries', () => {
+	it('passes malformed entries through without throwing', () => {
+		const entries = {
+			meta: null,
+			searchEngines: 'junk',
+			'shortcut:a': 5,
+			'shortcut:b': null,
+			'shortcut:c': { id: 'c', order: 'not a number' },
+			unrelated: { anything: true }
+		};
+
+		expect(fromStorageEntries(entries)).toEqual({
+			version: undefined,
+			defaultSearchEngineId: undefined,
+			searchEngines: 'junk',
+			theme: undefined,
+			background: undefined,
+			shortcuts: expect.arrayContaining([5, null, { id: 'c', order: 'not a number' }])
+		});
+	});
+
+	it('returns an empty shortcut list for empty storage', () => {
+		expect(fromStorageEntries({})).toMatchObject({ shortcuts: [] });
 	});
 });
